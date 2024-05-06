@@ -112,7 +112,7 @@ public:
 		}
 	}
 	template<class c>
-	void addfriend(c* ptr,string FRNDID)
+	void addfriend(c* &ptr,string FRNDID)
 	{
 		if (DuplicateCheck(user_file_path,FRNDID))
 		{
@@ -127,21 +127,17 @@ public:
 			cout << "User not found\n";
 		}
 	}
-	void DeletePTR(string**& _array, int& _array_size)
+	void DeletePTR(string **& _array, int& _array_size)
 	{
-		if (_array == nullptr) // Check if the pointer is already null
-			return;
-
 		for (int i = 0; i < _array_size; i++)
 		{
-			delete[] _array[i]; // Delete each element of the array
-		}
-		delete[] _array; // Delete the array itself
-		_array = nullptr; // Set the pointer to null
-		_array_size = 0; // Reset the size to zero
+			delete[]_array[i];
+		}_array_size = 0;
 	}
 
 };
+
+
 class User:public MajorUsedFunctions
 {
 public:
