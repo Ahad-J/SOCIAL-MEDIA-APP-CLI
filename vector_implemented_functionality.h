@@ -6,7 +6,6 @@
 #include<cstdlib>
 #include<vector>
 using namespace std;
-
 class MajorUsedFunctions
 {
 public:
@@ -19,7 +18,6 @@ public:
     string comment_file_path = "_comment.txt";
     string comment_post_file_path = "_comment_post.txt";
     string comment_description_file_path = "_comment_description.txt";
-
     bool DuplicateCheck(const string& _file_path, const string& _search)
     {
         ifstream file(_file_path);
@@ -35,7 +33,6 @@ public:
         file.close();
         return false;
     }
-
     void Tokenizer(string& _n)
     {
         for (int i = 0; i < _n.length(); i++)
@@ -46,7 +43,6 @@ public:
             }
         }
     }
-
     void Detokenizer(string& _n)
     {
         for (int i = 0; i < _n.length(); i++)
@@ -57,7 +53,6 @@ public:
             }
         }
     }
-
     string IDassigner(const string& parent_id, const string& child_id, const string& file_path)
     {
         srand(time(0));
@@ -69,7 +64,6 @@ public:
         } while (DuplicateCheck(file_path, temp_child_id));
         return temp_child_id;
     }
-
     string NextGetter(const string& _search, const string& file_path)
     {
         ifstream file(file_path);
@@ -85,7 +79,6 @@ public:
         }
         return "";
     }
-
     int OccurenceCounter(const string& _search, const string& file_path)
     {
         int counter = 0;
@@ -101,7 +94,6 @@ public:
         file.close();
         return counter;
     }
-
     template<class a>
     void getfriends(const string& file_path, a*& ptr)
     {
@@ -120,7 +112,6 @@ public:
             }
         }
     }
-
     template<class b>
     void viewfriends(b* ptr)
     {
@@ -130,7 +121,6 @@ public:
             cout << friendID << '\t' << NextGetter(temp, user_file_path) << endl;
         }
     }
-
     template<class c>
     void addfriend(c*& ptr, string FRNDID)
     {
@@ -179,7 +169,6 @@ public:
         _array.clear();
         _array_size = 0;
     }
-
     template<class a>
     void getPost(const string& file_path, a*& ptr)
     {
@@ -198,7 +187,6 @@ public:
             }
         }
     }
-
     template<class b>
     void viewposts(b* ptr)
     {
@@ -209,7 +197,6 @@ public:
             cout << postID << '\t' << temp << endl;
         }
     }
-
     template<class a>
     void getcomment(const string& file_path, a*& ptr)
     {
@@ -228,7 +215,6 @@ public:
             }
         }
     }
-
     template<class b>
     void viewcomment(b* ptr)
     {
@@ -239,7 +225,6 @@ public:
             cout << postID << '\t' << temp << endl;
         }
     }
-    //---------------------------------------------------------------------------
     template<class a>
     void getliked(const string& file_path, a*& ptr)
     {
@@ -258,7 +243,6 @@ public:
             }
         }
     }
-
     template<class b>
     void viewliked (b* ptr)
     {
@@ -269,8 +253,39 @@ public:
             cout << postID << '\t' << temp << endl;
         }
     }
-};
+    template<class c>
+    void addlikepost(c*& ptr,string postID)
+    {
+        ofstream file(liked_Posts_file_Path, ios::app);
+        if (!file.is_open())
+        {
+            cout << "File could not be opened\n";
+            return;
+        }
+        file << ptr->ID << ' ' << postID << '\n';
+        file.close();
+        ++ptr->liked_counter;
+        ptr->liked.resize(ptr->liked_counter);
+        ptr->liked.push_back(postID);
 
+    }
+    template<class c>
+    void addcommentpost(c*& ptr, string postID)
+    {
+        ofstream file(liked_Posts_file_Path, ios::app);
+        if (!file.is_open())
+        {
+            cout << "File could not be opened\n";
+            return;
+        }
+        file << ptr->ID << ' ' << postID << '\n';
+        file.close();
+        ++ptr->liked_counter;
+        ptr->liked.resize(ptr->liked_counter);
+        ptr->liked.push_back(postID);
+
+    }
+};
 class User : public MajorUsedFunctions
 {
 public:
@@ -288,7 +303,6 @@ public:
     int post_counter = 0;
     int liked_counter = 0;
     int commented_posts_counter = 0;
-
     User()
     {
         ID = IDassigner(datatype, ID, user_file_path);
@@ -301,23 +315,16 @@ public:
         file << ID << ' ' << name << '\n';
         Detokenizer(name);
     }
-
     User(string _ID)
     {
         ID = _ID;
         name = NextGetter(_ID, user_file_path);
         Detokenizer(name);
     }
-
     ~User()
     {
     }
 
-    void DELETEFRIENDLIST()
-    {
-        friend_list.clear();
-        friend_list_counter = 0;
-    }
 };
 
 class Driver : public MajorUsedFunctions
