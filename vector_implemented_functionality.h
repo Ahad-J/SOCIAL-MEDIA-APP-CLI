@@ -10,7 +10,6 @@ class MajorUsedFunctions
 {
 public:
     string user_file_path = "user.txt";
-    string page_file_path = "_page.txt";
     string friend_file_path = "_friend.txt";
     string post_file_path = "_post.txt";
     string post_description_file_path = "_post_description.txt";
@@ -18,6 +17,8 @@ public:
     string comment_file_path = "_comment.txt";
     string comment_post_file_path = "_comment_post.txt";
     string comment_description_file_path = "_comment_description.txt";
+    string page_file_path = "_page.txt";
+    string page_owner_file_path = "_page_owner.txt";
     bool DuplicateCheck(const string& _file_path, const string& _search)
     {
         ifstream file(_file_path);
@@ -66,7 +67,8 @@ public:
     }
     string NextGetter(const string& _search, const string& file_path)
     {
-        ifstream file(file_path);
+        ifstream file(file_path,ios::in);
+        cout << "file_path\t" << file_path << '\n';
         string _temp;
         while (file >> _temp)
         {
@@ -77,6 +79,7 @@ public:
                 return _temp;
             }
         }
+        file.close();
         return "";
     }
     int OccurenceCounter(const string& _search, const string& file_path)
@@ -272,17 +275,75 @@ public:
     template<class c>
     void addcommentpost(c*& ptr, string postID)
     {
-        ofstream file(liked_Posts_file_Path, ios::app);
-        if (!file.is_open())
-        {
-            cout << "File could not be opened\n";
-            return;
-        }
-        file << ptr->ID << ' ' << postID << '\n';
+        string context;
+        cout << "Enter your comment\n";
+        getline(cin, context);
+        string commentID;
+        IDassigner("COMMENT", commentID, comment_file_path);
+        ofstream file(comment_file_path, ios::app);
+        file << ptr->ID << ' ' << commentID << '\n';
         file.close();
-        ++ptr->liked_counter;
-        ptr->liked.resize(ptr->liked_counter);
-        ptr->liked.push_back(postID);
+        ofstream file2(comment_post_file_path, ios::app);
+        file2 << commentID << ' ' << postID << '\n';
+        file2.close();
+        ofstream file3(comment_description_file_path, ios::app);
+        file3 << commentID << ' ' << context << '\n';
+        file3.close();
+        ++ptr->commented_posts_counter;
+        ptr->commented_posts.resize(ptr->commented_posts_counter);
+        ptr->commented_posts.push_back(commentID);
+
+    }
+};
+class Page:public MajorUsedFunctions
+{
+public:
+    string _owner_id="DEFAULT";
+    string name = "default";
+    string datatype = "PAGE-";
+    string ID = "default";
+    string title = "default";
+    string context = "default";
+    vector<string> friend_list;
+    vector<string> post;
+    int friend_list_counter = 0;
+    int post_counter = 0;
+    Page(string n)
+    {
+        if (DuplicateCheck(user_file_path,n))
+        {
+            _owner_id = n;
+            ID = NextGetter(_owner_id,page_owner_file_path);
+            name = NextGetter(_owner_id, user_file_path);
+        }
+        
+    }
+    Page()
+    {
+        cout << "Enter your user ID\n";
+        do
+        {
+            cout << "Enter your user ID\n";
+            getline(cin, _owner_id);
+        } while (!DuplicateCheck(user_file_path,_owner_id)&&_owner_id!="0000");
+        IDassigner(datatype, ID, user_file_path);
+        cout << "Enter your page title\n";
+        getline(cin, title);
+        cout << "Enter your context\n";
+        getline(cin, context);
+        ofstream file(page_owner_file_path, ios::app);
+        file <<_owner_id << ' ' << ID << '\n';
+        file.close();
+        ofstream file2(page_file_path, ios::app);
+        Tokenizer(title);
+        Tokenizer(context);
+        file2 << ID << ' ' << title << ' ' << context << '\n';
+        Detokenizer(title);
+        Detokenizer(context);
+        file2.close();
+    }
+    ~Page()
+    {
 
     }
 };
@@ -323,10 +384,9 @@ public:
     }
     ~User()
     {
+
     }
-
 };
-
 class Driver : public MajorUsedFunctions
 {
 public:
@@ -359,16 +419,10 @@ public:
     {
         User* main = Login();
         if (main) {
-            getfriends(friend_file_path, main);
-            viewfriends(main);
-            getPost(post_file_path, main);
-            viewposts(main);
-            getcomment(comment_file_path, main);
-            viewcomment(main);
-            getliked(liked_Posts_file_Path, main);
-            viewliked(main);
-            addpost(main);
-            viewposts(main);
+            Page* a = new Page(main->ID);
+            addpost(a);
+            getPost(post_file_path, a);
+            viewposts(a);
         }
     }
 };

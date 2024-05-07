@@ -137,6 +137,8 @@
     <Text Include="_comment_post.txt" />
     <Text Include="_friend.txt" />
     <Text Include="_liked_posts.txt" />
+    <Text Include="_page.txt" />
+    <Text Include="_page_owner.txt" />
     <Text Include="_post.txt" />
     <Text Include="_post_description.txt" />
     <Text Include="_user.txt" />
