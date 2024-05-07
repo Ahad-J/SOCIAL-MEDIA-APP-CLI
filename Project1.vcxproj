@@ -128,9 +128,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Original_functionality.h" />
+    <ClInclude Include="vector_implemented_functionality.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="user.txt" />
+    <Text Include="_comment.txt" />
+    <Text Include="_comment_description.txt" />
+    <Text Include="_comment_post.txt" />
     <Text Include="_friend.txt" />
+    <Text Include="_liked_posts.txt" />
+    <Text Include="_post.txt" />
+    <Text Include="_post_description.txt" />
     <Text Include="_user.txt" />
   </ItemGroup>
   <ItemGroup>

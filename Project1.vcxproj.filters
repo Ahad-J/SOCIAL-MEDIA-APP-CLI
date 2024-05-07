@@ -18,10 +18,20 @@
     <ClInclude Include="Original_functionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vector_implemented_functionality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="_user.txt" />
     <Text Include="_friend.txt" />
+    <Text Include="user.txt" />
+    <Text Include="_post.txt" />
+    <Text Include="_post_description.txt" />
+    <Text Include="_liked_posts.txt" />
+    <Text Include="_comment.txt" />
+    <Text Include="_comment_post.txt" />
+    <Text Include="_comment_description.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

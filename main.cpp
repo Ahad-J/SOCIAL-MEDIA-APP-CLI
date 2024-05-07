@@ -3,7 +3,7 @@
 #include<string>
 #include<ctime>
 #include<cstdlib>
-#include"Original_functionality.h"
+#include"vector_implemented_functionality.h"
 using namespace std;
 int main()
 {
