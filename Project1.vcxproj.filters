@@ -34,6 +34,7 @@
     <Text Include="_comment_description.txt" />
     <Text Include="_page.txt" />
     <Text Include="_page_owner.txt" />
+    <Text Include="_owner_post.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

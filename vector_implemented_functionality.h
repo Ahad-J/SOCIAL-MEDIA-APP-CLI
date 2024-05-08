@@ -19,6 +19,7 @@ public:
     string comment_description_file_path = "_comment_description.txt";
     string page_file_path = "_page.txt";
     string page_owner_file_path = "_page_owner.txt";
+    string owner_post_file_path = "_owner_post.txt";
     bool DuplicateCheck(const string& _file_path, const string& _search)
     {
         ifstream file(_file_path);
@@ -54,10 +55,10 @@ public:
             }
         }
     }
-    string IDassigner(const string& parent_id, const string& child_id, const string& file_path)
+    string IDassigner(const string& parent_id,const string& file_path)
     {
         srand(time(0));
-        string temp_child_id = child_id;
+        string temp_child_id;
         do
         {
             temp_child_id = parent_id;
@@ -68,7 +69,6 @@ public:
     string NextGetter(const string& _search, const string& file_path)
     {
         ifstream file(file_path,ios::in);
-        cout << "file_path\t" << file_path << '\n';
         string _temp;
         while (file >> _temp)
         {
@@ -147,7 +147,7 @@ public:
     void addpost(c*& ptr)
     {
         string context, ID;
-        ID = IDassigner("POST-",ID,post_description_file_path);
+        ID = IDassigner("POST-",post_description_file_path);
         cout << "Enter context\n";
         getline(cin, context);
             ofstream file(post_file_path, ios::app);
@@ -173,22 +173,23 @@ public:
         _array_size = 0;
     }
     template<class a>
-    void getPost(const string& file_path, a*& ptr)
+    void getPost(const string& file_path,a*& ptr,string &_ID)
     {
-        ptr->post_counter = OccurenceCounter(ptr->ID, file_path);
-        ptr->post.resize(ptr->post_counter);
-        ifstream file(file_path);
+        ptr->post_counter += OccurenceCounter(_ID, file_path);
+        ptr->post.resize(ptr->post_counter+1);
+        ifstream file(file_path,ios::in);
         string _temp;
         int index = 0;
         while (file >> _temp)
         {
-            if (_temp == ptr->ID)
+            if (_temp == _ID)
             {
                 file >> _temp;
                 ptr->post[index] = _temp;
                 ++index;
             }
         }
+        file.close();
     }
     template<class b>
     void viewposts(b* ptr)
@@ -232,8 +233,8 @@ public:
     void getliked(const string& file_path, a*& ptr)
     {
         ptr->liked_counter = OccurenceCounter(ptr->ID, file_path);
-        ptr->liked.resize(ptr->liked_counter);
-        ifstream file(file_path);
+        ptr->liked.resize(ptr->liked_counter+1);
+        ifstream file(file_path,ios::in);
         string _temp;
         int index = 0;
         while (file >> _temp)
@@ -245,6 +246,7 @@ public:
                 ++index;
             }
         }
+        file.close();
     }
     template<class b>
     void viewliked (b* ptr)
@@ -279,7 +281,7 @@ public:
         cout << "Enter your comment\n";
         getline(cin, context);
         string commentID;
-        IDassigner("COMMENT", commentID, comment_file_path);
+        commentID=IDassigner("COMMENT-", comment_file_path);
         ofstream file(comment_file_path, ios::app);
         file << ptr->ID << ' ' << commentID << '\n';
         file.close();
@@ -293,6 +295,21 @@ public:
         ptr->commented_posts.resize(ptr->commented_posts_counter);
         ptr->commented_posts.push_back(commentID);
 
+    }
+    void getwhatever(string filepath,vector<string> storage,string search_word)
+    {
+        ifstream file(filepath, ios::in);
+        string _temp;
+        while (file>>_temp)
+        {
+            if (_temp==search_word)
+            {
+                file >> _temp;
+                storage.resize(storage.size() + 1);
+                storage.push_back(_temp);
+            }
+        }
+        file.close();
     }
 };
 class Page:public MajorUsedFunctions
@@ -326,7 +343,7 @@ public:
             cout << "Enter your user ID\n";
             getline(cin, _owner_id);
         } while (!DuplicateCheck(user_file_path,_owner_id)&&_owner_id!="0000");
-        IDassigner(datatype, ID, user_file_path);
+        ID=IDassigner(datatype, user_file_path);
         cout << "Enter your page title\n";
         getline(cin, title);
         cout << "Enter your context\n";
@@ -366,7 +383,7 @@ public:
     int commented_posts_counter = 0;
     User()
     {
-        ID = IDassigner(datatype, ID, user_file_path);
+        ID=IDassigner(datatype, user_file_path);
         cout << "Enter your name\n";
         getline(cin, name);
         cout << "Your unique ID is \t" << ID << endl;
@@ -383,6 +400,25 @@ public:
         Detokenizer(name);
     }
     ~User()
+    {
+
+    }
+};
+class Post:public MajorUsedFunctions
+{
+public:
+    string ID;
+    vector<string> comments;
+    int comment_counter=0;
+    Post(string _ID)
+    {
+        if (DuplicateCheck(post_file_path,_ID))
+        {
+            ID = _ID;
+            getwhatever(comment_file_path, comments, ID);
+        }
+    }
+    ~Post()
     {
 
     }
@@ -408,21 +444,56 @@ public:
             return nullptr;
         }
     }
-
     User* Signup()
     {
         User* temp = new User;
         return temp;
     }
+    void Home(User* ptr)
+    {
+        getliked(liked_Posts_file_Path, ptr);
+        ptr->page_list_counter = 0;
+        for (int i = 0; i < ptr->liked_counter; i++)
+        {
+            string pageID = NextGetter(ptr->liked[i], owner_post_file_path);
+            if (!pageID.empty())
+            {
+                ptr->page_list.push_back(pageID);
+                ptr->page_list_counter++;
+            }
+        }
+        getfriends(user_file_path, ptr);
+        for (int i = 0; i < ptr->friend_list_counter; i++)
+        {
+            getPost(post_file_path, ptr, ptr->friend_list[i]);
+        }
+        for (int i = 0; i < ptr->page_list_counter; i++)
+        {
+            getPost(post_file_path, ptr, ptr->page_list[i]);
+        }
+        displayposts(ptr->post);
+    }
 
+    void displayposts(vector<string> a)
+    {
+        for (const auto post:a)
+        {
+            cout << post << endl;
+        }
+    }
+    void likeApost(vector<string> a,int index,User*main)
+    {
+        addlikepost(main,a[index]);
+    }
     void driver()
     {
-        User* main = Login();
-        if (main) {
-            Page* a = new Page(main->ID);
-            addpost(a);
-            getPost(post_file_path, a);
-            viewposts(a);
+        User* ptr = nullptr;
+        ptr = Login();
+        addcommentpost(ptr, "POST-7020");
+        Post a("POST-7020");
+        for (auto comment:a.comments)
+        {
+            cout << comment << '\t' << NextGetter(comment, comment_post_file_path);
         }
     }
 };
