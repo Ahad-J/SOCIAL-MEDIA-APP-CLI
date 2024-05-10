@@ -9,17 +9,17 @@ using namespace std;
 class MajorUsedFunctions
 {
 public:
-    string user_file_path = "user.txt";
-    string friend_file_path = "_friend.txt";
-    string post_file_path = "_post.txt";
+    string user_name_file_path = "user.txt";
+    string user_friend_file_path = "_friend.txt";
+    string user_post_file_path = "_post.txt";
     string post_description_file_path = "_post_description.txt";
-    string liked_Posts_file_Path = "_liked_posts.txt";
-    string comment_file_path = "_comment.txt";
+    string user_likedPosts_file_Path = "_liked_posts.txt";
+    string user_comment_file_path = "_comment.txt";
     string comment_post_file_path = "_comment_post.txt";
     string comment_description_file_path = "_comment_description.txt";
     string page_file_path = "_page.txt";
-    string page_owner_file_path = "_page_owner.txt";
-    string owner_post_file_path = "_owner_post.txt";
+    string user_owner_page_file_path = "_page_owner.txt";
+    string post_owner_file_path = "_owner_post.txt";
     bool DuplicateCheck(const string& _file_path, const string& _search)
     {
         ifstream file(_file_path);
@@ -121,16 +121,16 @@ public:
         for (const auto& friendID : ptr->friend_list)
         {
             string temp = friendID.substr(2);
-            cout << friendID << '\t' << NextGetter(temp, user_file_path) << endl;
+            cout << friendID << '\t' << NextGetter(temp, user_name_file_path) << endl;
         }
     }
     template<class c>
     void addfriend(c*& ptr, string FRNDID)
     {
-        if (DuplicateCheck(user_file_path, FRNDID))
+        if (DuplicateCheck(user_name_file_path, FRNDID))
         {
             FRNDID = "F-" + FRNDID;
-            ofstream file(friend_file_path, ios::app);
+            ofstream file(user_friend_file_path, ios::app);
             if (!file.is_open())
             {
                 cout << "File could not be opened\n";
@@ -150,7 +150,7 @@ public:
         ID = IDassigner("POST-",post_description_file_path);
         cout << "Enter context\n";
         getline(cin, context);
-            ofstream file(post_file_path, ios::app);
+            ofstream file(user_post_file_path, ios::app);
             if (!file.is_open())
             {
                 cout << "File could not be opened\n";
@@ -261,7 +261,7 @@ public:
     template<class c>
     void addlikepost(c*& ptr,string postID)
     {
-        ofstream file(liked_Posts_file_Path, ios::app);
+        ofstream file(user_likedPosts_file_Path, ios::app);
         if (!file.is_open())
         {
             cout << "File could not be opened\n";
@@ -281,8 +281,8 @@ public:
         cout << "Enter your comment\n";
         getline(cin, context);
         string commentID;
-        commentID=IDassigner("COMMENT-", comment_file_path);
-        ofstream file(comment_file_path, ios::app);
+        commentID=IDassigner("COMMENT-", user_comment_file_path);
+        ofstream file(user_comment_file_path, ios::app);
         file << ptr->ID << ' ' << commentID << '\n';
         file.close();
         ofstream file2(comment_post_file_path, ios::app);
@@ -327,11 +327,11 @@ public:
     int post_counter = 0;
     Page(string n)
     {
-        if (DuplicateCheck(user_file_path,n))
+        if (DuplicateCheck(user_name_file_path,n))
         {
             _owner_id = n;
-            ID = NextGetter(_owner_id,page_owner_file_path);
-            name = NextGetter(_owner_id, user_file_path);
+            ID = NextGetter(_owner_id,user_owner_page_file_path);
+            name = NextGetter(_owner_id, user_name_file_path);
         }
         
     }
@@ -342,13 +342,13 @@ public:
         {
             cout << "Enter your user ID\n";
             getline(cin, _owner_id);
-        } while (!DuplicateCheck(user_file_path,_owner_id)&&_owner_id!="0000");
-        ID=IDassigner(datatype, user_file_path);
+        } while (!DuplicateCheck(user_name_file_path,_owner_id)&&_owner_id!="0000");
+        ID=IDassigner(datatype, user_name_file_path);
         cout << "Enter your page title\n";
         getline(cin, title);
         cout << "Enter your context\n";
         getline(cin, context);
-        ofstream file(page_owner_file_path, ios::app);
+        ofstream file(user_owner_page_file_path, ios::app);
         file <<_owner_id << ' ' << ID << '\n';
         file.close();
         ofstream file2(page_file_path, ios::app);
@@ -383,12 +383,12 @@ public:
     int commented_posts_counter = 0;
     User()
     {
-        ID=IDassigner(datatype, user_file_path);
+        ID=IDassigner(datatype, user_name_file_path);
         cout << "Enter your name\n";
         getline(cin, name);
         cout << "Your unique ID is \t" << ID << endl;
         cout << "Remember your ID you can use it to access the app\n";
-        ofstream file(user_file_path, ios::app);
+        ofstream file(user_name_file_path, ios::app);
         Tokenizer(name);
         file << ID << ' ' << name << '\n';
         Detokenizer(name);
@@ -396,7 +396,7 @@ public:
     User(string _ID)
     {
         ID = _ID;
-        name = NextGetter(_ID, user_file_path);
+        name = NextGetter(_ID, user_name_file_path);
         Detokenizer(name);
     }
     ~User()
@@ -412,10 +412,10 @@ public:
     int comment_counter=0;
     Post(string _ID)
     {
-        if (DuplicateCheck(post_file_path,_ID))
+        if (DuplicateCheck(user_post_file_path,_ID))
         {
             ID = _ID;
-            getwhatever(comment_file_path, comments, ID);
+            getwhatever(user_comment_file_path, comments, ID);
         }
     }
     ~Post()
@@ -432,7 +432,7 @@ public:
         cout << "Enter your ID\n";
         string _temp;
         getline(cin, _temp);
-        if (DuplicateCheck(user_file_path, _temp))
+        if (DuplicateCheck(user_name_file_path, _temp))
         {
             cout << "User has been found\n";
             temp = new User(_temp);
@@ -451,25 +451,25 @@ public:
     }
     void Home(User* ptr)
     {
-        getliked(liked_Posts_file_Path, ptr);
+        getliked(user_likedPosts_file_Path, ptr);
         ptr->page_list_counter = 0;
         for (int i = 0; i < ptr->liked_counter; i++)
         {
-            string pageID = NextGetter(ptr->liked[i], owner_post_file_path);
+            string pageID = NextGetter(ptr->liked[i], post_owner_file_path);
             if (!pageID.empty())
             {
                 ptr->page_list.push_back(pageID);
                 ptr->page_list_counter++;
             }
         }
-        getfriends(user_file_path, ptr);
+        getfriends(user_name_file_path, ptr);
         for (int i = 0; i < ptr->friend_list_counter; i++)
         {
-            getPost(post_file_path, ptr, ptr->friend_list[i]);
+            getPost(user_post_file_path, ptr, ptr->friend_list[i]);
         }
         for (int i = 0; i < ptr->page_list_counter; i++)
         {
-            getPost(post_file_path, ptr, ptr->page_list[i]);
+            getPost(user_post_file_path, ptr, ptr->page_list[i]);
         }
         displayposts(ptr->post);
     }

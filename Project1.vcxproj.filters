@@ -21,6 +21,9 @@
     <ClInclude Include="vector_implemented_functionality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="improved_functionality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="_user.txt" />
@@ -35,6 +38,11 @@
     <Text Include="_page.txt" />
     <Text Include="_page_owner.txt" />
     <Text Include="_owner_post.txt" />
+    <Text Include="post_comments.txt" />
+    <Text Include="_page_desc.txt" />
+    <Text Include="_post_liked_count.txt" />
+    <Text Include="_page_owner_PG_O.txt" />
+    <Text Include="timeline.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

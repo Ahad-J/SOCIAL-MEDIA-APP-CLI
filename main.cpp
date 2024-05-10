@@ -1,12 +1,6 @@
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<ctime>
-#include<cstdlib>
-#include"vector_implemented_functionality.h"
-using namespace std;
+#include"improved_functionality.h"
 int main()
 {
 	Driver a;
-	a.driver();
+	a.driver_run();
 }
