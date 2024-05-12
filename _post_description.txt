@@ -1,2 +1,0 @@
-POST-3042 first_post_of_the_app
-POST-2176 hello_world_testing_home_function

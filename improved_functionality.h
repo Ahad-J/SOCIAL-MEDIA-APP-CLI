@@ -178,6 +178,7 @@ public:
     string datatype = "USER-";
     string ID = "default";
     string Date = "00-00-0000";
+    Page* ptr = nullptr;
     vector<string> friend_list;
     vector<string> page_list;
     vector<string> post;
@@ -270,6 +271,7 @@ public:
     string context;
     string owner;
     vector<string> comments;
+    vector<string> likes;
     Post(string _ID)
     {
         if (DuplicateCheck(user_post_file_path, _ID))
@@ -325,10 +327,10 @@ public:
     }
 };
 
-class Driver:public MajorUsedFunctions
+class Driver :public MajorUsedFunctions
 {
 public:
-    void login(User*&main)
+    void login(User*& main)
     {
         string temp;
         cout << "Enter your user ID\n";
@@ -338,22 +340,22 @@ public:
         {
             main = new User(temp);
             cout << "Welcome user \t" << main->name << endl;
-            
+
         }
         else
         {
             cout << "No such user exist\n";
-            main=nullptr;
+            main = nullptr;
         }
     }
-    void Signup(User*&main)
+    void Signup(User*& main)
     {
         main = new User;
     }
     template<class c>
-    void viewposts(c*&ptr)
+    void viewposts(c*& ptr)
     {
-        for  (auto i:ptr->post)
+        for (auto i : ptr->post)
         {
             cout << i << '\t' << NextGetter(i, post_description_file_path) << endl;
         }
@@ -362,20 +364,20 @@ public:
     void viewFriendlist(d*& ptr)
     {
         getwhatever(user_friend_file_path, ptr->friend_list, ptr->ID);
-        for (int i=0;i< (ptr->friend_list.size());i++)
+        for (int i = 0; i < (ptr->friend_list.size()); i++)
         {
-            cout << ptr->friend_list[i] << '\t' << NextGetter(ptr->friend_list[i].erase(0,2), user_name_file_path) << endl;
+            cout << ptr->friend_list[i] << '\t' << NextGetter(ptr->friend_list[i].erase(0, 2), user_name_file_path) << endl;
         }
     }
     template<class E>
-    void createApost(E*&ptr)
+    void createApost(E*& ptr)
     {
         Post a(ptr);
 
     }
-    void createAcomment(User*&ptr,string pid)
+    void createAcomment(User*& ptr, string pid)
     {
-        if (OccurenceCounter(pid,post_comments_file_path)<10 && !pid.empty())
+        if (OccurenceCounter(pid, post_comments_file_path) < 10 && !pid.empty())
         {
             string commentID = IDassigner("COMMENT-", post_comments_file_path);
             string context;
@@ -387,7 +389,7 @@ public:
             writetofile(comment_description_file_path, commentID, context);
             writetofile(comment_post_file_path, commentID, pid);
             writetofile(post_timeline_file_path, commentID, ptr->Date);
-            writetofile(timeline_post_file_path, ptr->Date,commentID);
+            writetofile(timeline_post_file_path, ptr->Date, commentID);
         }
         else
         {
@@ -396,15 +398,15 @@ public:
     }
     void likeApost(User*& ptr, string pid)
     {
-        if (OccurenceCounter(pid,user_likedPosts_file_Path)<10 && !pid.empty())
+        if (OccurenceCounter(pid, user_likedPosts_file_Path) < 10 && !pid.empty())
         {
             writetofile(user_likedPosts_file_Path, ptr->ID, pid);
             writetofile(post_likedusers_file_path, pid, ptr->ID);
-            writetofile(timeline_post_file_path, "L-"+pid, ptr->Date);
+            writetofile(timeline_post_file_path, "L-" + pid, ptr->Date);
             writetofile(post_timeline_file_path, ptr->Date, "L-" + pid);
         }
     }
-    void Home(User*& ptr, vector<string> &friendPosts, vector<string> &pagePosts)
+    void Home(User*& ptr, vector<string>& friendPosts, vector<string>& pagePosts)
     {
         if (ptr == nullptr) {
             cout << "Error: User not logged in.\n";
@@ -417,7 +419,7 @@ public:
         if (ptr->friend_list.empty())
         {
             cout << "NO FRIENDS ADDED IN LIST\n";
-        } 
+        }
         if (ptr->liked.empty())
         {
             cout << "NO LIKED POSTS EXIST\n";
@@ -454,7 +456,7 @@ public:
                     if (!postID.empty())
                     {
                         string postDate = NextGetter(postID, post_timeline_file_path);
-                        if (postDate == currentDate || postDate==hrdate)
+                        if (postDate == currentDate || postDate == hrdate)
                         {
                             string temp = NextGetter(postID, post_description_file_path);
                             cout << "Friend Post: " << postID << ' ' << temp << endl;
@@ -498,7 +500,6 @@ public:
             }
         }
     }
-
     void Loginwindow()
     {
         sf::RenderWindow window(sf::VideoMode(800, 800), "INSTA-M", sf::Style::Close);
@@ -602,13 +603,13 @@ public:
             }
         }
     }
-    void getsuggestions(string file_path, vector<string>& storage,string sub,int start,int end)
+    void getsuggestions(string file_path, vector<string>& storage, string sub, int start, int end)
     {
         ifstream file(file_path, ios::in);
         string _temp;
         while (file >> _temp)
         {
-            if (_temp.substr(start,end) ==sub )
+            if (_temp.substr(start, end) == sub)
             {
                 if (!_temp.empty())
                 {
@@ -625,10 +626,9 @@ public:
     void driver_run()
     {
         User* main = nullptr;
-        Page* ptr = nullptr;
         cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\n";
         char choice = ' '; cin >> choice;
-        if (choice=='l'||choice=='L')
+        if (choice == 'l' || choice == 'L')
         {
             login(main);
         }
@@ -638,49 +638,171 @@ public:
         }
         if (main)
         {
-            system("CLS");
-            while (choice!='0')
+            while (choice != '0')
             {
-                
+
                 cout << "\t\tMENU\n";
                 cout << "1->Enter 1 for home\n";
                 cout << "2->Enter 2 for profile\n";
                 cout << "3->Enter 3 for friend list\n";
                 cout << "4->Enter 4 for page list\n";
-                cout << "5->Enter 5 for suggestions\n";
-                cout << "6->Press 0 to exit menu\n";
+                cout << "5->Press 0 to exit menu\n";
                 cin >> choice;
-                if (choice=='1')
+                system("CLS");
+                if (choice == '1')
                 {
                     vector<string> temp1;
                     vector<string> temp2;
                     system("CLS");
-                    Home(main,temp1,temp2);
-                    int index = 0;
-                    cout << "Enter index to like / comment on post\n";
-                    cin >> index;
-                    if (index<temp1.size())
+                    Home(main, temp1, temp2);
+                    if (!temp1.empty() || !temp2.empty())
                     {
-                        cout << "What would you like to do\n";
-                        cout << "1->like (a)\n";
-                        cout << "2->comment (b)\n";
-                        cout << "3->Repost (c)\n";
-                        cin >> choice;
-                        if (choice=='a')
+                        int index = 0;
+                        cout << "Enter index to like / comment on post\n";
+                        cin >> index;
+                        if (index < temp1.size())
                         {
-                            likeApost(main, temp1[index-1]);
+                            cout << "What would you like to do\n";
+                            cout << "1->like (a)\n";
+                            cout << "2->comment (b)\n";
+                            cout << "3->Repost (c)\n";
+                            cin >> choice;
+                            if (choice == 'a')
+                            {
+                                likeApost(main, temp1[index - 1]);
+                            }
+                            else if (choice == 'b')
+                            {
+                                createAcomment(main, temp1[index - 1]);
+                            }
+                            else if (choice == 'c')
+                            {
+                                Post a(main, temp1[index - 1]);
+                            }
+                        }
+                        else if (index > temp1.size())
+                        {
+                            cout << "What would you like to do\n";
+                            cout << "1->like (a)\n";
+                            cout << "2->comment (b)\n";
+                            cout << "3->Repost (c)\n";
+                            cin >> choice;
+                            if (choice == 'a')
+                            {
+                                likeApost(main, temp2[index - temp1.size() - 1]);
+                            }
+                            else if (choice == 'b')
+                            {
+                                createAcomment(main, temp2[index - temp1.size() - 1]);
+                            }
+                            else if (choice == 'c')
+                            {
+                                Post a(main, temp2[index - temp1.size() - 1]);
+                            }
+                        }
+                    }
+
+                }
+                else if (choice == '2')
+                {
+                    getwhatever(user_post_file_path, main->post, main->ID);
+                    viewposts(main);
+                    if (!main->post.empty())
+                    {
+                        cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                        cout << "Options\n";
+                        cout << "1->View posts (a)\n";
+                        cout << "2->Create posts (b)\n";
+                        cout << "3->Create a page (c)\n";
+                        cout << "4->Login as page(d)\n";
+                        cin >> choice;
+                        if (choice == 'a')
+                        {
+                            cout << "Enter Index to view posts\n";
+                            int index;
+                            cin >> index;
+                            cout << main->post[index - 1] << ' ' << NextGetter(main->post[index - 1], post_description_file_path);
+                            cout << "Options\n";
+                            cout << "1->View comments (a)\n";
+                            cout << "2->View likes (b)\n";
+                            cout << "3->View publishing date (c)\n";
+                            cin >> choice;
+                            if (choice == 'a')
+                            {
+                                Post a(main->post[index - 1]);
+                                getwhatever(post_comments_file_path, a.comments, a.ID);
+                                viewvector(a.comments);
+                            }
+                            else if (choice == 'b')
+                            {
+                                Post a(main->post[index - 1]);
+                                getwhatever(post_likedusers_file_path, a.likes, a.ID);
+                                viewvector(a.likes);
+                            }
+                            else if (choice == 'c')
+                            {
+                                cout << NextGetter(main->post[index - 1], post_timeline_file_path) << endl;
+                            }
                         }
                         else if (choice == 'b')
                         {
-                            createAcomment(main, temp1[index-1]);
+                            createApost(main);
                         }
-                        else if (choice=='c')
+                        else if (choice == 'c')
                         {
-                            Post a(main, temp1[index-1]);
+                            main->ptr=new Page(main);
+                            cout << "Do you want to create a post as a page owner Y/N \n";
+                            cin >> choice;
+                                if (choice=='y')
+                                {
+                                    createApost(main->ptr);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                        }
+                        else if(choice=='d')
+                        {
+                            string temp = NextGetter(user_owner_page_file_path, main->ID);
+                            if (temp.empty())
+                            {
+                                cout << "No page has been created against ID\t" << main->ID << endl;
+                            }
+                            else
+                            {
+                                cout << "Do you want to create a post as a page owner Y/N \n";
+                                cin >> choice;
+                                if (choice == 'y')
+                                {
+                                    createApost(main->ptr);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
                         }
                     }
-                    else if (index > temp1.size())
+
+
+
+                }
+                else if (choice == '3')
+                {
+                    getwhatever(user_friend_file_path, main->friend_list, main->ID);
+                    viewFriendlist(main);
+                    if (!main->friend_list.empty())
                     {
+                        int index;
+                        cout << "Enter index to view friend profile\n";
+                        cin >> index;
+                        cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path);
+                        vector<string>temp;
+                        getwhatever(user_post_file_path, temp, main->friend_list[index - 1]);
+                        viewvector(temp);
+                        cout << "Enter post to interact\n";
+                        cin >> index;
                         cout << "What would you like to do\n";
                         cout << "1->like (a)\n";
                         cout << "2->comment (b)\n";
@@ -688,31 +810,57 @@ public:
                         cin >> choice;
                         if (choice == 'a')
                         {
-                            likeApost(main, temp2[index- temp1.size()-1]);
+                            likeApost(main, temp[index - 1]);
                         }
                         else if (choice == 'b')
                         {
-                            createAcomment(main, temp2[index - temp1.size()-1]);
+                            createAcomment(main, temp[index - 1]);
                         }
                         else if (choice == 'c')
                         {
-                            Post a(main, temp2[index - temp1.size()-1]);
+                            Post a(main, temp[index - 1]);
                         }
                     }
                 }
-                else if (choice=='2')
+                else if (choice == '4')
                 {
-                    getwhatever(user_post_file_path, main->post, main->ID);
-                    viewposts(main);
-                    cout << "Options\n";
-                    cout << "1->View comments (a)\n";
-                    cout << "2->View likes (b)\n";
-                    cout << "3->View publishing date (c)\n";
+                    vector<string>temp;
+                    getsuggestions(page_owner_file_path, temp, "PAGE-", 0, 5);
+                    viewvector(temp);
+                    if (!temp.empty())
+                    {
+                        cout << "Enter page to interact\n";
+                        int index;
+                        cin >> index;
+                        vector<string>temp_post;
+                        getwhatever(user_post_file_path, temp_post, temp[index - 1]);
+                        cout << "What would you like to do\n";
+                        cout << "1->like (a)\n";
+                        cout << "2->comment (b)\n";
+                        cout << "3->Repost (c)\n";
+                        cin >> choice;
+                        if (choice == 'a')
+                        {
+                            likeApost(main, temp_post[index - 1]);
+                        }
+                        else if (choice == 'b')
+                        {
+                            createAcomment(main, temp_post[index - 1]);
+                        }
+                        else if (choice == 'c')
+                        {
+                            Post a(main, temp_post[index - 1]);
+                        }
+                    }
 
                 }
+                else if (choice == '0')
+                {
+                    break;
+                }
+
             }
         }
 
     }
-    
 };
