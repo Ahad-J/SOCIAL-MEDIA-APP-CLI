@@ -248,8 +248,10 @@ public:
     {
         ID = IDassigner(datatype, user_owner_page_file_path);
         cout << "Enter your page title\n";
+        cin.ignore();
         getline(cin, title);
         cout << "Enter your description\n";
+        cin.ignore();
         getline(cin, context);
         _owner_id = ptr->ID;
         writetofile(user_owner_page_file_path,_owner_id,ID);
@@ -621,7 +623,7 @@ public:
     void driver_run()
     {
         User* main = nullptr;
-        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\nenter p to login into a page";
+        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\nenter p to login into a page\n";
         char choice = ' '; cin >> choice;
         if (choice == 'l' || choice == 'L')
         {
@@ -635,6 +637,7 @@ public:
         {
             cout << "Enter your Page ID\n";
             string temp;
+            cin.ignore();
             getline(cin, temp);
             if (DuplicateCheck(page_owner_file_path,temp))
             {
