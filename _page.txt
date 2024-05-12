@@ -1,6 +1,1 @@
-PAGE-101 HELLO_FAST A_page_to_discuss_FAST
-default bugtatta car_enthusiast_page
-default Bugatti car_lovers_page
-PAGE-6984 Car_enthusiast bugatti
-PAGE-6945 BUGAtti
-PAGE-3807 Anime
+PAGE-7167 ALABAMA

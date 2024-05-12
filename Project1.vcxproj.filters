@@ -26,7 +26,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="_user.txt" />
     <Text Include="_friend.txt" />
     <Text Include="user.txt" />
     <Text Include="_post.txt" />
@@ -43,6 +42,7 @@
     <Text Include="_post_liked_count.txt" />
     <Text Include="_page_owner_PG_O.txt" />
     <Text Include="timeline.txt" />
+    <Text Include="post_timeline.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
