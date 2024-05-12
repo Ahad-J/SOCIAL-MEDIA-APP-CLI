@@ -621,7 +621,7 @@ public:
     void driver_run()
     {
         User* main = nullptr;
-        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\n";
+        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\nenter p to login into a page";
         char choice = ' '; cin >> choice;
         if (choice == 'l' || choice == 'L')
         {
@@ -630,6 +630,72 @@ public:
         else if (choice == 's' || choice == 'S')
         {
             Signup(main);
+        }
+        else if (choice=='P'||choice=='p')
+        {
+            cout << "Enter your Page ID\n";
+            string temp;
+            getline(cin, temp);
+            if (DuplicateCheck(page_owner_file_path,temp))
+            {
+                Page* main_ = new Page(temp);
+                getwhatever(user_post_file_path, main_->post, main_->ID);
+                viewposts(main_);
+                cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                cout << "Options\n";
+                cout << "1->View posts (a)\n";
+                cout << "2->Create posts (b)\n";
+                cin >> choice;
+                if (choice == 'a' && !main_->post.empty())
+                {
+                    cout << "Enter Index to view posts\n";
+                    int index;
+                    cin >> index;
+                    if (index <= main_->post.size() && index != 0)
+                    {
+                        cout << main_->post[index - 1] << ' ' << NextGetter(main_->post[index - 1], post_description_file_path);
+                        cout << "Options\n";
+                        cout << "1->View comments (a)\n";
+                        cout << "2->View likes (b)\n";
+                        cout << "3->View publishing date (c)\n";
+                        cin >> choice;
+                        if (choice == 'a')
+                        {
+                            Post a(main_->post[index - 1]);
+                            getwhatever(post_comments_file_path, a.comments, a.ID);
+                            viewvector(a.comments);
+                        }
+                        else if (choice == 'b')
+                        {
+                            Post a(main_->post[index - 1]);
+                            getwhatever(post_likedusers_file_path, a.likes, a.ID);
+                            viewvector(a.likes);
+                        }
+                        else if (choice == 'c')
+                        {
+                            cout << NextGetter(main_->post[index - 1], post_timeline_file_path) << endl;
+                        }
+
+                    }
+                    else if (index > main_->post.size())
+                    {
+                        cout << "Invalid index entered\n";
+                    }
+
+                }
+                else if (choice == 'b')
+                {
+                    createApost(main_);
+                }
+                else if (main_->post.empty())
+                {
+                    cout << "No post to show\n";
+                }
+
+
+            }
+            
+
         }
         if (main)
         {
@@ -694,6 +760,7 @@ public:
                             else if (choice == 'c')
                             {
                                 Post a(main, temp2[index - temp1.size() - 1]);
+
                             }
                         }
                         else
@@ -711,13 +778,14 @@ public:
                         cout << "Options\n";
                         cout << "1->View posts (a)\n";
                         cout << "2->Create posts (b)\n";
+                        cout << "2->Create a page (c)\n";
                         cin >> choice;
                         if (choice == 'a' && !main->post.empty())
                         {
                             cout << "Enter Index to view posts\n";
                             int index;
                             cin >> index;
-                            if (index<main->post.size() && index!=0)
+                            if (index<=main->post.size() && index!=0)
                             {
                                 cout << main->post[index - 1] << ' ' << NextGetter(main->post[index - 1], post_description_file_path);
                                 cout << "Options\n";
@@ -757,19 +825,76 @@ public:
                         {
                             cout << "No post to show\n";
                         }
+                        else if (choice=='c')
+                        {
+                            Page* main_ = new Page(main);
+                            getwhatever(user_post_file_path, main_->post, main_->ID);
+                            viewposts(main_);
+                            cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                            cout << "Options\n";
+                            cout << "1->View posts (a)\n";
+                            cout << "2->Create posts (b)\n";
+                            cin >> choice;
+                            if (choice == 'a' && !main_->post.empty())
+                            {
+                                cout << "Enter Index to view posts\n";
+                                int index;
+                                cin >> index;
+                                if (index <= main_->post.size() && index != 0)
+                                {
+                                    cout << main_->post[index - 1] << ' ' << NextGetter(main_->post[index - 1], post_description_file_path);
+                                    cout << "Options\n";
+                                    cout << "1->View comments (a)\n";
+                                    cout << "2->View likes (b)\n";
+                                    cout << "3->View publishing date (c)\n";
+                                    cin >> choice;
+                                    if (choice == 'a')
+                                    {
+                                        Post a(main_->post[index - 1]);
+                                        getwhatever(post_comments_file_path, a.comments, a.ID);
+                                        viewvector(a.comments);
+                                    }
+                                    else if (choice == 'b')
+                                    {
+                                        Post a(main_->post[index - 1]);
+                                        getwhatever(post_likedusers_file_path, a.likes, a.ID);
+                                        viewvector(a.likes);
+                                    }
+                                    else if (choice == 'c')
+                                    {
+                                        cout << NextGetter(main_->post[index - 1], post_timeline_file_path) << endl;
+                                    }
+
+                                }
+                                else if (index > main_->post.size())
+                                {
+                                    cout << "Invalid index entered\n";
+                                }
+
+                            }
+                            else if (choice == 'b')
+                            {
+                                createApost(main_);
+                            }
+                            else if (main_->post.empty())
+                            {
+                                cout << "No post to show\n";
+                            }
+
+
+                        }
                         
                             
                 }
                 else if (choice == '3')
                 {
-                    getwhatever(user_friend_file_path, main->friend_list, main->ID);
                     viewFriendlist(main);
                     if (!main->friend_list.empty())
                     {
                         int index;
                         cout << "Enter index to view friend profile\n";
                         cin >> index;
-                        cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path);
+                        cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path)<<endl;
                         vector<string>temp;
                         getwhatever(user_post_file_path, temp, main->friend_list[index - 1]);
                         viewvector(temp);
