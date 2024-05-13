@@ -631,11 +631,19 @@ public:
        
         ptr->commented_posts.clear();
     }
+    void indentation(Page*& ptr)
+    {
+
+        ptr->friend_list.clear();
+
+        ptr->post.clear();
+    }
     void Pagefunct(Page *&ptr)
     {
         char choice=' ';
         while (choice!=27)
         {
+            indentation(ptr);
             setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
             cout << "\t\tOptions\n";
@@ -795,7 +803,7 @@ public:
                     setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                     cout << "1->View posts (a)\n";
                     cout << "2->Create posts (b)\n";
-                    cout << "2->Create a page (c)\n";
+                    cout << "3->Create a page (c)\n";
                     cin >> choice;
                     if (choice == 'a' && !main->post.empty())
                     {
@@ -819,64 +827,15 @@ public:
                     {
                         createApost(main);
                     }
+                    else if (choice == 'c')
+                    {
+                        ptr = new Page(main);
+                        Pagefunct(ptr);
+                    }
                     else if (main->post.empty())
                     {
                         setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "No post to show\n";
-                    }
-                    else if (choice == 'c')
-                    {
-                        ptr = new Page(main);
-                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
-                        cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
-                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-                        cout << "Options\n";
-                        setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-                        cout << "1->View posts (a)\n";
-                        cout << "2->Create posts (b)\n";
-                        cout << "Enter 0 to continue program\n";
-                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-                        cin >> choice;
-                        viewposts(ptr);
-                        if (choice == 'a' && !ptr->post.empty())
-                        {
-                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
-                            cout << "Enter Index to interact with posts\n";
-                            setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-                            int index;
-                            cin >> index;
-                            if (index <= ptr->post.size() && index != 0)
-                            {
-                                interactwithpost<Page>(ptr, ptr->post[index - 1]);
-                            }
-                            else if (index > ptr->post.size())
-                            {
-                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
-                                cout << "Invalid index entered\n";
-                            }
-                            else if (ptr->post.empty())
-                            {
-                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
-                                cout << "No post to show\n";
-                            }
-
-                        }
-                        else if (choice == 'b')
-                        {
-                            createApost(ptr);
-                        }
-                        else if (choice=='c')
-                        {
-                            ptr = new Page(main);
-                            Pagefunct(ptr);
-                        }
-                        else if (choice == '0')
-                        {
-                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
-                            cout << "Continuing the program\n";
-                        }
-
-
                     }
                 }
                 else if (choice == '3')
