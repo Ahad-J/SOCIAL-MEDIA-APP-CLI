@@ -29,6 +29,9 @@ public:
     string page_owner_file_path = "_page_owner_PG_O.txt";
     string timeline_post_file_path = "timeline.txt";
     string post_timeline_file_path = "post_timeline.txt";
+    void setConsoleColor(int color) {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    }
     string getCurrentLocalTimeAsString(int i) {
         // Get the current time
         time_t now;
@@ -183,9 +186,12 @@ public:
     User()
     {
         ID = IDassigner(datatype, user_name_file_path);
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Enter your name\n";
         cin.ignore();
+        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         getline(cin, name);
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Your unique ID is \t" << ID << endl;
         cout << "Remember your ID you can use it to access the app\n";
         Date = getCurrentLocalTimeAsString(0);
@@ -242,11 +248,15 @@ public:
     Page(User *ptr)
     {
         ID = IDassigner(datatype, user_owner_page_file_path);
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Enter your page title\n";
         cin.ignore();
+        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         getline(cin, title);
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Enter your description\n";
         cin.ignore();
+        setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
         getline(cin, context);
         _owner_id = ptr->ID;
         writetofile(user_owner_page_file_path,_owner_id,ID);
@@ -330,17 +340,21 @@ public:
     void login(User*& main)
     {
         string temp;
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Enter your user ID\n";
         cin.ignore();
+        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         getline(cin, temp);
         if (DuplicateCheck(user_name_file_path, temp))
         {
             main = new User(temp);
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             cout << "Welcome user \t" << main->name << endl;
 
         }
         else
         {
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             cout << "No such user exist\n";
             main = nullptr;
         }
@@ -409,6 +423,7 @@ public:
     void Home(User*& ptr, vector<string>& friendPosts, vector<string>& pagePosts)
     {
         if (ptr == nullptr) {
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             cout << "Error: User not logged in.\n";
             return;
         }
@@ -416,6 +431,7 @@ public:
         getwhatever(user_likedPosts_file_Path, ptr->liked, ptr->ID);
         if (ptr->friend_list.empty())
         {
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             cout << "NO FRIENDS ADDED IN LIST\n";
         }
         if (ptr->liked.empty())
@@ -447,11 +463,13 @@ public:
                         if (postDate == currentDate || postDate == hrdate)
                         {
                             string temp = NextGetter(postID, post_description_file_path);
-                            cout << "Friend Post: " << postID << ' ' << temp << endl;
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                            cout << "Friend Post: "; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY); cout << postID << ' '; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY); cout << temp << endl;
                         }
                     }
                     else if (friendPosts.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "NO FRIENDS POSTS IN LAST 24 hrs\n";
                         break;
                     }
@@ -471,11 +489,13 @@ public:
                         if (postDate == currentDate || postDate == hrdate)
                         {
                             string temp = NextGetter(postID, post_description_file_path);
-                            cout << "Liked Page Post: " << postID << ' ' << temp << endl;
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                            cout << "Liked Page Post: "; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY); cout << postID << ' '; setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);cout << temp << endl;
                         }
                     }
                     else if (pagePosts.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "NO PAGE POSTS IN LAST 24 hrs\n";
                         break;
                     }
@@ -485,11 +505,14 @@ public:
     }
     void viewvector(vector<string>temp)
     {
+        int index = 1;
         for (auto i : temp)
         {
             if (!i.empty())
             {
-                cout << i << endl;
+                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                cout << index << '\t'; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY); cout << i << endl;
+                ++index;
             }
         }
     }
@@ -518,25 +541,61 @@ public:
             return;
         }
         cout << PID << ' ' << NextGetter(PID, post_description_file_path) << '\n';
+        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
         cout << "Options\n";
+        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         cout << "1->View comments (a)\n";
         cout << "2->View likes (b)\n";
         cout << "3->View publishing date (c)\n";
         cout << "4->Like post (d)\n";
         cout << "5-comment on the post(e)\n";
-        cout << "REPOST/MEMORY (f)\n";
+        cout << "6->REPOST/MEMORY (f)\n";
+        setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
         cin >> choice;
         if (choice == 'a')
         {
             Post a(PID);
             getwhatever(post_comments_file_path, a.comments, a.ID);
-            viewvector(a.comments);
+            if (!a.comments.empty())
+            {
+                vector<string>temp;
+                for (auto i:a.comments)
+                {
+                    if (!NextGetter(i,comment_description_file_path).empty())
+                    {
+                        temp.push_back(NextGetter(i, comment_description_file_path));
+                    }
+                }
+                int iterator = 0;
+                for (auto  i :a.comments)
+                {
+                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                    cout << i << '\t';
+                    setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+                    cout << temp[iterator] << endl;
+                    ++iterator;
+                }
+            }
+            else
+            {
+                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                cout << "No comments\n";
+            }
+           
         }
         else if (choice == 'b')
         {
             Post a(PID);
             getwhatever(post_likedusers_file_path, a.likes, a.ID);
-            viewvector(a.likes);
+            if (!a.likes.empty())
+            {
+                viewvector(a.likes);
+            }
+            else
+            {
+                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                cout << "No comments\n";
+            }
         }
         else if (choice == 'c')
         {
@@ -545,10 +604,12 @@ public:
         else if (choice == 'd')
         {
             likeApost(ptr, PID);
+            cout << "POST LIKED\n";
         }
         else if (choice == 'e')
         {
             createAcomment(ptr, PID);
+            cout << "COMMENT CREATED\n";
         }
         else if (choice == 'f')
         {
@@ -556,8 +617,68 @@ public:
         }
 
     }
-    void setConsoleColor(int color) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+
+    void indentation(User*&ptr)
+    {
+        
+        ptr->friend_list.clear();
+       
+        ptr->page_list.clear();
+       
+        ptr->post.clear();
+        
+        ptr->liked.clear();
+       
+        ptr->commented_posts.clear();
+    }
+    void Pagefunct(Page *&ptr)
+    {
+        char choice=' ';
+        while (choice!=27)
+        {
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+            cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
+            cout << "\t\tOptions\n";
+            setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout << "1->View posts (a)\n";
+            cout << "2->Create posts (b)\n";
+            cout << "Enter ESC to continue program as USER\n";
+            setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+            cin >> choice;
+            viewposts(ptr);
+            if (choice == 'a' && !ptr->post.empty())
+            {
+                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                cout << "Enter Index to interact with posts\n";
+                int index;
+                setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                cin >> index;
+                if (index <= ptr->post.size() && index != 0)
+                {
+                    interactwithpost<Page>(ptr, ptr->post[index - 1]);
+                }
+                else if (index > ptr->post.size())
+                {
+                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                    cout << "Invalid index entered\n";
+                }
+                else if (ptr->post.empty())
+                {
+                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                    cout << "No post to show\n";
+                }
+
+            }
+            else if (choice == 'b')
+            {
+                createApost(ptr);
+            }
+            else if (choice == 27)
+            {
+                setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                cout << "Continuing the program\nLogging in as user\n";
+            }
+        }
     }
     void driver_run()
     {
@@ -565,10 +686,11 @@ public:
         Page* ptr = nullptr;
         string PgID;
         setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\n\t\tenter p to login into a page\n";
+        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\t"; setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY); cout << "enter l for login\n\t\tenter s for signup\n\t\tenter p to login into a page\n";
         char choice = ' '; cin >> choice;
         if (choice == 'l' || choice == 'L')
         {
+            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
             login(main);
         }
         else if (choice == 's' || choice == 'S')
@@ -582,65 +704,38 @@ public:
             if (!PgID.empty())
             {
                 ptr = new Page(PgID);
-                cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
-                cout << "Options\n";
-                cout << "1->View posts (a)\n";
-                cout << "2->Create posts (b)\n";
-                cout << "Enter 0 to continue program\n";
-                cin >> choice;
-                viewposts(ptr);
-                if (choice == 'a' && !ptr->post.empty())
-                {
-                    cout << "Enter Index to interact with posts\n";
-                    int index;
-                    cin >> index;
-                    if (index <= ptr->post.size() && index != 0)
-                    {
-                        interactwithpost<Page>(ptr, ptr->post[index - 1]);
-                    }
-                    else if (index > ptr->post.size())
-                    {
-                        cout << "Invalid index entered\n";
-                    }
-                    else if (ptr->post.empty())
-                    {
-                        cout << "No post to show\n";
-                    }
-
-                }
-                else if (choice == 'b')
-                {
-                    createApost(ptr);
-                }
-                else if (choice == '0')
-                {
-                    cout << "Continuing the program\nLogging in as user\n";
-                }
+                Pagefunct(ptr);
             }
         }
         if (main)
         {
             while (choice != 27)
             {
+                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                 cout << "\t\tMENU\n";
+                setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                 cout << "1->Enter 1 for home\n";
                 cout << "2->Enter 2 for profile\n";
                 cout << "3->Enter 3 for friend list\n";
                 cout << "4->Enter 4 for page list\n";
                 cout << "5-Enter 5 to recieve friend suggestions\n";
-                cout << "6->Press 0 to exit menu\n";
+                cout << "6->Press ESC to exit menu\n";
+                setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                 cin >> choice;
 
                 if (choice == '1')
                 {
+                    indentation(main);
                     vector<string> temp1;
                     vector<string> temp2;
                     Home(main, temp1, temp2);
                     viewvector(temp1);
                     if (!temp1.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "Enter index of friend posts to interact with\nEnter 0 to continue program\n";
                         int index;
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cin >> index;
                         if (index <= temp1.size() && !temp1.empty() && index != 0)
                         {
@@ -648,16 +743,19 @@ public:
                         }
                         else if (index == 0)
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Continuing the program\n";
                         }
 
                         else if (index > temp1.size())
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY); 
                             cout << "Invalid index entered\n";
                         }
                     }
                     else if (temp1.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "No friends post added\n";
                     }
                     viewvector(temp2);
@@ -683,21 +781,27 @@ public:
                     {
                         cout << "No PAGES post added\n";
                     }
-                    system("CLS");
                 }
                 else if (choice == '2')
                 {
-                    cout << "USER\t" << main->name << endl;
+                    indentation(main);
+                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                    cout << "USER\t"; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);cout << main->name << endl;
                     viewposts(main);
+                    setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                     cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                     cout << "Options\n";
+                    setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                     cout << "1->View posts (a)\n";
                     cout << "2->Create posts (b)\n";
                     cout << "2->Create a page (c)\n";
                     cin >> choice;
                     if (choice == 'a' && !main->post.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "Enter Index to view posts\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         int index;
                         cin >> index;
                         if (index <= main->post.size() && index != 0)
@@ -706,6 +810,7 @@ public:
                         }
                         else if (index > main->post.size())
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Invalid index entered\n";
                         }
 
@@ -716,21 +821,28 @@ public:
                     }
                     else if (main->post.empty())
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "No post to show\n";
                     }
                     else if (choice == 'c')
                     {
                         ptr = new Page(main);
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cout << "Options\n";
+                        setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                         cout << "1->View posts (a)\n";
                         cout << "2->Create posts (b)\n";
                         cout << "Enter 0 to continue program\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cin >> choice;
                         viewposts(ptr);
                         if (choice == 'a' && !ptr->post.empty())
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Enter Index to interact with posts\n";
+                            setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                             int index;
                             cin >> index;
                             if (index <= ptr->post.size() && index != 0)
@@ -739,10 +851,12 @@ public:
                             }
                             else if (index > ptr->post.size())
                             {
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "Invalid index entered\n";
                             }
                             else if (ptr->post.empty())
                             {
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "No post to show\n";
                             }
 
@@ -751,31 +865,39 @@ public:
                         {
                             createApost(ptr);
                         }
+                        else if (choice=='c')
+                        {
+                            ptr = new Page(main);
+                            Pagefunct(ptr);
+                        }
                         else if (choice == '0')
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Continuing the program\n";
                         }
 
 
                     }
-
-                    system("CLS");
                 }
                 else if (choice == '3')
                 {
-
+                    indentation(main);
                     viewFriendlist(main);
                     if (!main->friend_list.empty())
                     {
                         int index;
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "Enter index to view friend profile\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cin >> index;
                         if (index <= main->friend_list.size() && index != 0)
                         {
-                            cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path) << endl;
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+                            cout << "Name-:\t"; setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);cout << NextGetter(main->friend_list[index - 1], user_name_file_path) << endl;
                             vector<string>temp;
                             getwhatever(user_post_file_path, temp, main->friend_list[index - 1]);
                             viewvector(temp);
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Enter post to interact\nEnter 0 to continue with program\n";
                             cin >> index;
                             if (index <= temp.size() && !temp.empty())
@@ -784,72 +906,86 @@ public:
                             }
                             else if (index > temp.size())
                             {
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "Invalid index entry\n";
                             }
                             else if (index == 0)
                             {
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "Continuing the program\n";
                             }
                         }
                         else if (index > main->friend_list.size())
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Invalid index entry\n";
                         }
                         else if (index == 0)
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Continuing the program\n";
                         }
                     }
 
                     else
                     {
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "NO FRIENDS JEE\n";
                     }
-                    system("CLS");
                 }
                 else if (choice == '4')
                 {
+                    indentation(main);
                     vector<string>temp;
                     getsuggestions(page_owner_file_path, temp, "PAGE-", 0, 5);
                     viewvector(temp);
                     if (!temp.empty())
                     {
                         int index;
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "Enter page to interact\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cin >> index;
-                        if (index<=temp.size() && index!=0)
+                        if (index <= temp.size() && index != 0)
                         {
                             vector<string>temp_post;
                             getwhatever(user_post_file_path, temp_post, temp[index - 1]);
                             if (!temp_post.empty())
                             {
                                 viewvector(temp_post);
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "Enter post to interact\n";
+                                setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                                 cin >> index;
-                                if (index <= temp_post.size() && !temp_post.empty())
+                                if (index <= temp_post.size() && index!=0)
                                 {
                                     interactwithpost<User>(main, temp_post[index - 1]);
                                 }
                                 else if (index > temp_post.size())
                                 {
+                                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                     cout << "Invalid index entry\n";
                                 }
                                 else if (index == 0)
                                 {
+                                    setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                     cout << "Continuing the program\n";
                                 }
                             }
                             else
                             {
+                                setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                                 cout << "No posts\n";
                             }
                         }
-                        else if (index>temp.size())
+                        else if (index > temp.size())
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Invalid index entry\n";
                         }
-                        else if (index==0)
+                        else if (index == 0)
                         {
+                            setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                             cout << "Continuing the program\n";
                         }
                     }
@@ -857,7 +993,6 @@ public:
                     {
                         cout << "NO pages followed yet\n";
                     }
-                    system("CLS");
 
                 }
                 else if (choice == '0')
@@ -866,17 +1001,19 @@ public:
                 }
                 else if (choice == '5')
                 {
+                    indentation(main);
                     vector<string> temp1;
                     getsuggestions(user_name_file_path, temp1, "USER-", 0, 5);
                     viewvector(temp1);
                     if (!temp1.empty())
                     {
                         int index = 0;
+                        setConsoleColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
                         cout << "Enter index to add user as your friend\n";
+                        setConsoleColor(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                         cin >> index;
                         addfriend(main->ID, temp1[index - 1]);
                     }
-                    system("CLS");
                 }
 
             }
