@@ -7,11 +7,8 @@
 #include<vector>
 #include <ctime>
 #include <sstream>
-#include"SFML/System.hpp"
-#include"SFML/Graphics.hpp"
-#include"SFML/Window.hpp"
+#include<Windows.h>
 using namespace std;
-using namespace sf;
 class MajorUsedFunctions
 {
 public:
@@ -191,7 +188,6 @@ public:
         getline(cin, name);
         cout << "Your unique ID is \t" << ID << endl;
         cout << "Remember your ID you can use it to access the app\n";
-        cout << "Set date in format DD-MM-YYYY\n";
         Date = getCurrentLocalTimeAsString(0);
         ofstream file(user_name_file_path, ios::app);
         Tokenizer(name);
@@ -203,7 +199,6 @@ public:
         ID = _ID;
         name = NextGetter(_ID, user_name_file_path);
         Detokenizer(name);
-        cout << "Set date in format DD-MM-YYYY\n";
         Date = getCurrentLocalTimeAsString(0);
     }
     ~User()
@@ -255,6 +250,7 @@ public:
         getline(cin, context);
         _owner_id = ptr->ID;
         writetofile(user_owner_page_file_path,_owner_id,ID);
+        writetofile(page_owner_file_path, ID,_owner_id);
         writetofile(page_title_file_path, ID, title);
         writetofile(page_description_file_path, ID, context);
         
@@ -356,6 +352,7 @@ public:
     template<class c>
     void viewposts(c*& ptr)
     {
+        getwhatever(user_post_file_path, ptr->post, ptr->ID);
         for (auto i : ptr->post)
         {
             cout << i << '\t' << NextGetter(i, post_description_file_path) << endl;
@@ -376,7 +373,8 @@ public:
         Post a(ptr);
 
     }
-    void createAcomment(User*& ptr, string pid)
+    template<class T>
+    void createAcomment(T*& ptr, string pid)
     {
         if (OccurenceCounter(pid, post_comments_file_path) < 10 && !pid.empty())
         {
@@ -397,7 +395,8 @@ public:
             cout << "limit of comment over exceded\n";
         }
     }
-    void likeApost(User*& ptr, string pid)
+    template<class T>
+    void likeApost(T*& ptr, string pid)
     {
         if (OccurenceCounter(pid, user_likedPosts_file_Path) < 10 && !pid.empty())
         {
@@ -413,8 +412,6 @@ public:
             cout << "Error: User not logged in.\n";
             return;
         }
-
-        // Get the friend list and liked posts of the user
         getwhatever(user_friend_file_path, ptr->friend_list, ptr->ID);
         getwhatever(user_likedPosts_file_Path, ptr->liked, ptr->ID);
         if (ptr->friend_list.empty())
@@ -425,15 +422,10 @@ public:
         {
             cout << "NO LIKED POSTS EXIST\n";
         }
-        // Get the current date and time
         string currentDate = getCurrentLocalTimeAsString(0);
         string hrdate = getCurrentLocalTimeAsString(1);
-
-        // Temporary storage for pages liked by the user
         vector<string> tempPages;
         string t;
-
-        // Collect pages liked by the user
         for (auto i : ptr->liked)
         {
             t = NextGetter(i, post_owner_file_path);
@@ -442,16 +434,11 @@ public:
                 tempPages.push_back(t);
             }
         }
-
-        // Display posts from friends shared in the last 24 hours
         for (auto friendID : ptr->friend_list)
         {
             if (!friendID.empty())
             {
-                // Get posts for each friend
                 getwhatever(user_post_file_path, friendPosts, friendID.erase(0, 2));
-
-                // Display each friend's posts shared in the last 24 hours
                 for (auto postID : friendPosts)
                 {
                     if (!postID.empty())
@@ -471,16 +458,11 @@ public:
                 }
             }
         }
-
-        // Display posts from liked pages shared in the last 24 hours
         for (auto pageID : tempPages)
         {
             if (!pageID.empty())
             {
-                // Get posts for each liked page
                 getwhatever(user_post_file_path, pagePosts, pageID);
-
-                // Display each liked page's posts shared in the last 24 hours
                 for (auto postID : pagePosts)
                 {
                     if (!postID.empty())
@@ -501,99 +483,6 @@ public:
             }
         }
     }
-    void Loginwindow()
-    {
-        sf::RenderWindow window(sf::VideoMode(800, 800), "INSTA-M", sf::Style::Close);
-        sf::Event action;
-
-        // Heading
-        sf::Font f1;
-        f1.loadFromFile("font1.otf");
-        sf::Text T1;
-        T1.setFont(f1);
-        T1.setString("InstaM");
-        T1.setCharacterSize(80);
-        T1.setFillColor(sf::Color::White);
-        T1.setOutlineColor(sf::Color::Black); // Set outline color
-        T1.setOutlineThickness(5); // Set outline thickness
-        sf::FloatRect textRect1 = T1.getLocalBounds();
-        T1.setOrigin(textRect1.left + textRect1.width / 2.0f, textRect1.top + textRect1.height / 2.0f);
-        T1.setPosition(800 / 2, 100); // Centered at the top of the window
-
-        // Login button
-        sf::RectangleShape loginouter;
-        sf::Text T2;
-        T2.setFont(f1);
-        T2.setString("LOGIN");
-        T2.setCharacterSize(50);
-        T2.setFillColor(sf::Color::Black);
-        T2.setOutlineColor(sf::Color::White); // Set outline color
-        T2.setOutlineThickness(2); // Set outline thickness
-        sf::FloatRect textRect2 = T2.getLocalBounds();
-        T2.setOrigin(textRect2.left + textRect2.width / 2.0f, textRect2.top + textRect2.height / 2.0f);
-        T2.setPosition(800 / 2, 400); // Position login button text centered within the button
-
-        loginouter.setSize(sf::Vector2f(200, 50));
-        loginouter.setPosition(800 / 2 - 100, 350); // Adjusted position to center vertically
-        loginouter.setOutlineThickness(20);
-        loginouter.setFillColor(sf::Color::Red);
-        loginouter.setOutlineColor(sf::Color::Blue);
-
-        // Signup button
-        sf::RectangleShape signupouter;
-        sf::Text T3;
-        T3.setFont(f1);
-        T3.setString("SIGNUP");
-        T3.setCharacterSize(50);
-        T3.setFillColor(sf::Color::Black);
-        T3.setOutlineColor(sf::Color::White); // Set outline color
-        T3.setOutlineThickness(2); // Set outline thickness
-        sf::FloatRect textRect3 = T3.getLocalBounds();
-        T3.setOrigin(textRect3.left + textRect3.width / 2.0f, textRect3.top + textRect3.height / 2.0f);
-        T3.setPosition(800 / 2, 550); // Position signup button text centered within the button
-
-        signupouter.setSize(sf::Vector2f(200, 50));
-        signupouter.setPosition(800 / 2 - 100, 500); // Adjusted position to center vertically
-        signupouter.setOutlineThickness(20);
-        signupouter.setFillColor(sf::Color::Green);
-        signupouter.setOutlineColor(sf::Color::Blue);
-
-        while (window.isOpen())
-        {
-            while (window.pollEvent(action))
-            {
-                if (action.type == sf::Event::Closed)
-                {
-                    window.close();
-                }
-                else if (action.type == sf::Event::MouseButtonPressed)
-                {
-                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-                    if (loginouter.getGlobalBounds().contains(mousePosF))
-                    {
-                        loginouter.setOutlineColor(sf::Color::Cyan);
-                        loginouter.setOutlineThickness(25);
-                        loginouter.setFillColor(sf::Color::Yellow);
-                    }
-                    else if (signupouter.getGlobalBounds().contains(mousePosF))
-                    {
-                        signupouter.setOutlineColor(sf::Color::Cyan);
-                        signupouter.setOutlineThickness(25);
-                        signupouter.setFillColor(sf::Color::Yellow);
-                    }
-                }
-            }
-
-            window.clear(sf::Color::White);
-            window.draw(T1); // Draw heading
-            window.draw(loginouter);
-            window.draw(T2);
-            window.draw(signupouter);
-            window.draw(T3);
-            window.display();
-        }
-    }
     void viewvector(vector<string>temp)
     {
         for (auto i : temp)
@@ -604,7 +493,7 @@ public:
             }
         }
     }
-    void getsuggestions(string file_path, vector<string> &storage, string sub, int start, int end)
+    void getsuggestions(string file_path, vector<string>& storage, string sub, int start, int end)
     {
         ifstream file(file_path, ios::in);
         string _temp;
@@ -620,10 +509,63 @@ public:
         }
         file.close();
     }
+    template<class b>
+    void interactwithpost(b*& ptr, string PID)
+    {
+        char choice;
+        if (!DuplicateCheck(post_description_file_path, PID))
+        {
+            return;
+        }
+        cout << PID << ' ' << NextGetter(PID, post_description_file_path) << '\n';
+        cout << "Options\n";
+        cout << "1->View comments (a)\n";
+        cout << "2->View likes (b)\n";
+        cout << "3->View publishing date (c)\n";
+        cout << "4->Like post (d)\n";
+        cout << "5-comment on the post(e)\n";
+        cout << "REPOST/MEMORY (f)\n";
+        cin >> choice;
+        if (choice == 'a')
+        {
+            Post a(PID);
+            getwhatever(post_comments_file_path, a.comments, a.ID);
+            viewvector(a.comments);
+        }
+        else if (choice == 'b')
+        {
+            Post a(PID);
+            getwhatever(post_likedusers_file_path, a.likes, a.ID);
+            viewvector(a.likes);
+        }
+        else if (choice == 'c')
+        {
+            cout << NextGetter(PID, post_timeline_file_path) << endl;
+        }
+        else if (choice == 'd')
+        {
+            likeApost(ptr, PID);
+        }
+        else if (choice == 'e')
+        {
+            createAcomment(ptr, PID);
+        }
+        else if (choice == 'f')
+        {
+            Post a(ptr, PID);
+        }
+
+    }
+    void setConsoleColor(int color) {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    }
     void driver_run()
     {
         User* main = nullptr;
-        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\nenter p to login into a page\n";
+        Page* ptr = nullptr;
+        string PgID;
+        setConsoleColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        cout << "\t\tWELCOME TO CLI BASED SOCIAL MEDIA APP\n\t\tenter l for login\n\t\tenter s for signup\n\t\tenter p to login into a page\n";
         char choice = ' '; cin >> choice;
         if (choice == 'l' || choice == 'L')
         {
@@ -633,78 +575,53 @@ public:
         {
             Signup(main);
         }
-        else if (choice=='P'||choice=='p')
+        else if (choice == 'P' || choice == 'p')
         {
-            cout << "Enter your Page ID\n";
-            string temp;
-            cin.ignore();
-            getline(cin, temp);
-            if (DuplicateCheck(page_owner_file_path,temp))
+            login(main);
+            PgID = NextGetter(user_owner_page_file_path, PgID);
+            if (!PgID.empty())
             {
-                Page* main_ = new Page(temp);
-                getwhatever(user_post_file_path, main_->post, main_->ID);
-                viewposts(main_);
-                cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                ptr = new Page(PgID);
+                cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
                 cout << "Options\n";
                 cout << "1->View posts (a)\n";
                 cout << "2->Create posts (b)\n";
+                cout << "Enter 0 to continue program\n";
                 cin >> choice;
-                if (choice == 'a' && !main_->post.empty())
+                viewposts(ptr);
+                if (choice == 'a' && !ptr->post.empty())
                 {
-                    cout << "Enter Index to view posts\n";
+                    cout << "Enter Index to interact with posts\n";
                     int index;
                     cin >> index;
-                    if (index <= main_->post.size() && index != 0)
+                    if (index <= ptr->post.size() && index != 0)
                     {
-                        cout << main_->post[index - 1] << ' ' << NextGetter(main_->post[index - 1], post_description_file_path);
-                        cout << "Options\n";
-                        cout << "1->View comments (a)\n";
-                        cout << "2->View likes (b)\n";
-                        cout << "3->View publishing date (c)\n";
-                        cin >> choice;
-                        if (choice == 'a')
-                        {
-                            Post a(main_->post[index - 1]);
-                            getwhatever(post_comments_file_path, a.comments, a.ID);
-                            viewvector(a.comments);
-                        }
-                        else if (choice == 'b')
-                        {
-                            Post a(main_->post[index - 1]);
-                            getwhatever(post_likedusers_file_path, a.likes, a.ID);
-                            viewvector(a.likes);
-                        }
-                        else if (choice == 'c')
-                        {
-                            cout << NextGetter(main_->post[index - 1], post_timeline_file_path) << endl;
-                        }
-
+                        interactwithpost<Page>(ptr, ptr->post[index - 1]);
                     }
-                    else if (index > main_->post.size())
+                    else if (index > ptr->post.size())
                     {
                         cout << "Invalid index entered\n";
+                    }
+                    else if (ptr->post.empty())
+                    {
+                        cout << "No post to show\n";
                     }
 
                 }
                 else if (choice == 'b')
                 {
-                    createApost(main_);
+                    createApost(ptr);
                 }
-                else if (main_->post.empty())
+                else if (choice == '0')
                 {
-                    cout << "No post to show\n";
+                    cout << "Continuing the program\nLogging in as user\n";
                 }
-
-
             }
-            
-
         }
         if (main)
         {
-            while (choice != '0')
+            while (choice != 27)
             {
-
                 cout << "\t\tMENU\n";
                 cout << "1->Enter 1 for home\n";
                 cout << "2->Enter 2 for profile\n";
@@ -713,218 +630,182 @@ public:
                 cout << "5-Enter 5 to recieve friend suggestions\n";
                 cout << "6->Press 0 to exit menu\n";
                 cin >> choice;
-                //system("CLS");
+
                 if (choice == '1')
                 {
                     vector<string> temp1;
                     vector<string> temp2;
-                    system("CLS");
                     Home(main, temp1, temp2);
-                    if (!temp1.empty() || !temp2.empty())
+                    viewvector(temp1);
+                    if (!temp1.empty())
                     {
-                        int index = 0;
-                        cout << "Enter index to like / comment on post\n";
+                        cout << "Enter index of friend posts to interact with\nEnter 0 to continue program\n";
+                        int index;
                         cin >> index;
-                        if (index < temp1.size())
+                        if (index <= temp1.size() && !temp1.empty() && index != 0)
                         {
-                            cout << "What would you like to do\n";
-                            cout << "1->like (a)\n";
-                            cout << "2->comment (b)\n";
-                            cout << "3->Repost (c)\n";
-                            cin >> choice;
-                            if (choice == 'a')
-                            {
-                                likeApost(main, temp1[index - 1]);
-                            }
-                            else if (choice == 'b')
-                            {
-                                createAcomment(main, temp1[index - 1]);
-                            }
-                            else if (choice == 'c')
-                            {
-                                Post a(main, temp1[index - 1]);
-                            }
+                            interactwithpost(main, temp1[index - 1]);
                         }
-                        else if (index > temp1.size() && index<temp1.size()+temp2.size())
+                        else if (index == 0)
                         {
-                            cout << "What would you like to do\n";
-                            cout << "1->like (a)\n";
-                            cout << "2->comment (b)\n";
-                            cout << "3->Repost (c)\n";
-                            cin >> choice;
-                            if (choice == 'a')
-                            {
-                                likeApost(main, temp2[index - temp1.size() - 1]);
-                            }
-                            else if (choice == 'b')
-                            {
-                                createAcomment(main, temp2[index - temp1.size() - 1]);
-                            }
-                            else if (choice == 'c')
-                            {
-                                Post a(main, temp2[index - temp1.size() - 1]);
+                            cout << "Continuing the program\n";
+                        }
 
-                            }
-                        }
-                        else
+                        else if (index > temp1.size())
                         {
                             cout << "Invalid index entered\n";
                         }
                     }
-
+                    else if (temp1.empty())
+                    {
+                        cout << "No friends post added\n";
+                    }
+                    viewvector(temp2);
+                    if (!temp2.empty())
+                    {
+                        int index;
+                        cout << "Enter index of PAGE posts to interact with\nEnter 0 to continue program\n";
+                        cin >> index;
+                        if (index <= temp2.size() && !temp2.empty() && index != 0)
+                        {
+                            interactwithpost<User>(main, temp2[index - 1]);
+                        }
+                        else if (index == 0)
+                        {
+                            cout << "Continuing the program\n";
+                        }
+                        else if (index > temp2.size())
+                        {
+                            cout << "Invalid index entered\n";
+                        }
+                    }
+                    else if (temp2.empty())
+                    {
+                        cout << "No PAGES post added\n";
+                    }
+                    system("CLS");
                 }
                 else if (choice == '2')
                 {
-                    getwhatever(user_post_file_path, main->post, main->ID);
+                    cout << "USER\t" << main->name << endl;
                     viewposts(main);
-                        cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                    cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
+                    cout << "Options\n";
+                    cout << "1->View posts (a)\n";
+                    cout << "2->Create posts (b)\n";
+                    cout << "2->Create a page (c)\n";
+                    cin >> choice;
+                    if (choice == 'a' && !main->post.empty())
+                    {
+                        cout << "Enter Index to view posts\n";
+                        int index;
+                        cin >> index;
+                        if (index <= main->post.size() && index != 0)
+                        {
+                            interactwithpost<User>(main, main->post[index - 1]);
+                        }
+                        else if (index > main->post.size())
+                        {
+                            cout << "Invalid index entered\n";
+                        }
+
+                    }
+                    else if (choice == 'b')
+                    {
+                        createApost(main);
+                    }
+                    else if (main->post.empty())
+                    {
+                        cout << "No post to show\n";
+                    }
+                    else if (choice == 'c')
+                    {
+                        ptr = new Page(main);
+                        cout << "WELCOME TO YOUR PAGE WHAT WOULD U LIKE TO DO\n";
                         cout << "Options\n";
                         cout << "1->View posts (a)\n";
                         cout << "2->Create posts (b)\n";
-                        cout << "2->Create a page (c)\n";
+                        cout << "Enter 0 to continue program\n";
                         cin >> choice;
-                        if (choice == 'a' && !main->post.empty())
+                        viewposts(ptr);
+                        if (choice == 'a' && !ptr->post.empty())
                         {
-                            cout << "Enter Index to view posts\n";
+                            cout << "Enter Index to interact with posts\n";
                             int index;
                             cin >> index;
-                            if (index<=main->post.size() && index!=0)
+                            if (index <= ptr->post.size() && index != 0)
                             {
-                                cout << main->post[index - 1] << ' ' << NextGetter(main->post[index - 1], post_description_file_path);
-                                cout << "Options\n";
-                                cout << "1->View comments (a)\n";
-                                cout << "2->View likes (b)\n";
-                                cout << "3->View publishing date (c)\n";
-                                cin >> choice;
-                                if (choice == 'a')
-                                {
-                                    Post a(main->post[index - 1]);
-                                    getwhatever(post_comments_file_path, a.comments, a.ID);
-                                    viewvector(a.comments);
-                                }
-                                else if (choice == 'b')
-                                {
-                                    Post a(main->post[index - 1]);
-                                    getwhatever(post_likedusers_file_path, a.likes, a.ID);
-                                    viewvector(a.likes);
-                                }
-                                else if (choice == 'c')
-                                {
-                                    cout << NextGetter(main->post[index - 1], post_timeline_file_path) << endl;
-                                }
-                                
+                                interactwithpost<Page>(ptr, ptr->post[index - 1]);
                             }
-                            else if (index > main->post.size())
+                            else if (index > ptr->post.size())
                             {
                                 cout << "Invalid index entered\n";
                             }
-                            
-                        }
-                        else if (choice == 'b')
-                        {
-                            createApost(main);
-                        }
-                        else if (main->post.empty())
-                        {
-                            cout << "No post to show\n";
-                        }
-                        else if (choice=='c')
-                        {
-                            Page* main_ = new Page(main);
-                            getwhatever(user_post_file_path, main_->post, main_->ID);
-                            viewposts(main_);
-                            cout << "WELCOME TO YOUR PROFILE WHAT WOULD U LIKE TO DO\n";
-                            cout << "Options\n";
-                            cout << "1->View posts (a)\n";
-                            cout << "2->Create posts (b)\n";
-                            cin >> choice;
-                            if (choice == 'a' && !main_->post.empty())
-                            {
-                                cout << "Enter Index to view posts\n";
-                                int index;
-                                cin >> index;
-                                if (index <= main_->post.size() && index != 0)
-                                {
-                                    cout << main_->post[index - 1] << ' ' << NextGetter(main_->post[index - 1], post_description_file_path);
-                                    cout << "Options\n";
-                                    cout << "1->View comments (a)\n";
-                                    cout << "2->View likes (b)\n";
-                                    cout << "3->View publishing date (c)\n";
-                                    cin >> choice;
-                                    if (choice == 'a')
-                                    {
-                                        Post a(main_->post[index - 1]);
-                                        getwhatever(post_comments_file_path, a.comments, a.ID);
-                                        viewvector(a.comments);
-                                    }
-                                    else if (choice == 'b')
-                                    {
-                                        Post a(main_->post[index - 1]);
-                                        getwhatever(post_likedusers_file_path, a.likes, a.ID);
-                                        viewvector(a.likes);
-                                    }
-                                    else if (choice == 'c')
-                                    {
-                                        cout << NextGetter(main_->post[index - 1], post_timeline_file_path) << endl;
-                                    }
-
-                                }
-                                else if (index > main_->post.size())
-                                {
-                                    cout << "Invalid index entered\n";
-                                }
-
-                            }
-                            else if (choice == 'b')
-                            {
-                                createApost(main_);
-                            }
-                            else if (main_->post.empty())
+                            else if (ptr->post.empty())
                             {
                                 cout << "No post to show\n";
                             }
 
-
                         }
-                        
-                            
+                        else if (choice == 'b')
+                        {
+                            createApost(ptr);
+                        }
+                        else if (choice == '0')
+                        {
+                            cout << "Continuing the program\n";
+                        }
+
+
+                    }
+
+                    system("CLS");
                 }
                 else if (choice == '3')
                 {
+
                     viewFriendlist(main);
                     if (!main->friend_list.empty())
                     {
                         int index;
                         cout << "Enter index to view friend profile\n";
                         cin >> index;
-                        cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path)<<endl;
-                        vector<string>temp;
-                        getwhatever(user_post_file_path, temp, main->friend_list[index - 1]);
-                        viewvector(temp);
-                        cout << "Enter post to interact\n";
-                        cin >> index;
-                        cout << "What would you like to do\n";
-                        cout << "1->like (a)\n";
-                        cout << "2->comment (b)\n";
-                        cout << "3->Repost (c)\n";
-                        cin >> choice;
-                        if (choice == 'a')
+                        if (index <= main->friend_list.size() && index != 0)
                         {
-                            likeApost(main, temp[index - 1]);
+                            cout << "Name-:\t" << NextGetter(main->friend_list[index - 1], user_name_file_path) << endl;
+                            vector<string>temp;
+                            getwhatever(user_post_file_path, temp, main->friend_list[index - 1]);
+                            viewvector(temp);
+                            cout << "Enter post to interact\nEnter 0 to continue with program\n";
+                            cin >> index;
+                            if (index <= temp.size() && !temp.empty())
+                            {
+                                interactwithpost<User>(main, temp[index - 1]);
+                            }
+                            else if (index > temp.size())
+                            {
+                                cout << "Invalid index entry\n";
+                            }
+                            else if (index == 0)
+                            {
+                                cout << "Continuing the program\n";
+                            }
                         }
-                        else if (choice == 'b')
+                        else if (index > main->friend_list.size())
                         {
-                            createAcomment(main, temp[index - 1]);
+                            cout << "Invalid index entry\n";
                         }
-                        else if (choice == 'c')
+                        else if (index == 0)
                         {
-                            Post a(main, temp[index - 1]);
+                            cout << "Continuing the program\n";
                         }
                     }
+
                     else
                     {
                         cout << "NO FRIENDS JEE\n";
                     }
+                    system("CLS");
                 }
                 else if (choice == '4')
                 {
@@ -933,43 +814,60 @@ public:
                     viewvector(temp);
                     if (!temp.empty())
                     {
-                        cout << "Enter page to interact\n";
                         int index;
+                        cout << "Enter page to interact\n";
                         cin >> index;
-                        vector<string>temp_post;
-                        getwhatever(user_post_file_path, temp_post, temp[index - 1]);
-                        cout << "What would you like to do\n";
-                        cout << "1->like (a)\n";
-                        cout << "2->comment (b)\n";
-                        cout << "3->Repost (c)\n";
-                        cin >> choice;
-                        if (choice == 'a')
+                        if (index<=temp.size() && index!=0)
                         {
-                            likeApost(main, temp_post[index - 1]);
+                            vector<string>temp_post;
+                            getwhatever(user_post_file_path, temp_post, temp[index - 1]);
+                            if (!temp_post.empty())
+                            {
+                                viewvector(temp_post);
+                                cout << "Enter post to interact\n";
+                                cin >> index;
+                                if (index <= temp_post.size() && !temp_post.empty())
+                                {
+                                    interactwithpost<User>(main, temp_post[index - 1]);
+                                }
+                                else if (index > temp_post.size())
+                                {
+                                    cout << "Invalid index entry\n";
+                                }
+                                else if (index == 0)
+                                {
+                                    cout << "Continuing the program\n";
+                                }
+                            }
+                            else
+                            {
+                                cout << "No posts\n";
+                            }
                         }
-                        else if (choice == 'b')
+                        else if (index>temp.size())
                         {
-                            createAcomment(main, temp_post[index - 1]);
+                            cout << "Invalid index entry\n";
                         }
-                        else if (choice == 'c')
+                        else if (index==0)
                         {
-                            Post a(main, temp_post[index - 1]);
+                            cout << "Continuing the program\n";
                         }
                     }
                     else
                     {
                         cout << "NO pages followed yet\n";
                     }
+                    system("CLS");
 
                 }
                 else if (choice == '0')
                 {
                     break;
                 }
-                else if(choice=='5')
+                else if (choice == '5')
                 {
                     vector<string> temp1;
-                    getsuggestions(user_name_file_path,temp1,"USER-", 0, 5);
+                    getsuggestions(user_name_file_path, temp1, "USER-", 0, 5);
                     viewvector(temp1);
                     if (!temp1.empty())
                     {
@@ -978,7 +876,7 @@ public:
                         cin >> index;
                         addfriend(main->ID, temp1[index - 1]);
                     }
-                    
+                    system("CLS");
                 }
 
             }
