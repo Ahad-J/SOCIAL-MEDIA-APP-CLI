@@ -91,14 +91,6 @@ The structure consists of:
 
 ---
 
-## 🖼️ Preview
-
-<p align="center">
-  <img src="https://your-image-link.com/image.png" alt="Project Screenshot" width="600"/>
-</p>
-
----
-
 ## ✨ Features
 
 - 💾 File-based persistent storage
